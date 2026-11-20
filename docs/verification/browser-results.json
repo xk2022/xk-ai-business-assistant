@@ -1,0 +1,23 @@
+{
+  "backend": "Spring Boot executable JAR",
+  "frontend": "Next.js production server",
+  "mocks": false,
+  "requests": [
+    {
+      "url": "http://localhost:8080/api/v1/status",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8080/api/v1/status",
+      "status": 200
+    }
+  ],
+  "checks": [
+    "actuator UP and HTTP 200 {\"status\":\"ok\"}",
+    "browser connected with real API",
+    "backend stopped, retry showed connection failure",
+    "same page, backend restarted, retry reconnected without reload",
+    "no horizontal overflow at 375/768/1024/1440px"
+  ],
+  "outcome": "PASS"
+}

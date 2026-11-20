@@ -1,0 +1,105 @@
+name: Product CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop, 'feat/**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend/app
+    env:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: frontend/app/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/app/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  backend-and-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Service storage is new for each job; local development volumes are never used.
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.5-pg17-bookworm
+        env:
+          POSTGRES_DB: xk_ci
+          POSTGRES_USER: xk_ci
+          POSTGRES_PASSWORD: ci_only
+        ports:
+          - '127.0.0.1:5432:5432'
+        options: >-
+          --health-cmd "pg_isready -U xk_ci -d xk_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      SPRING_PROFILES_ACTIVE: test
+      DB_URL: jdbc:postgresql://localhost:5432/xk_ci
+      DB_USERNAME: xk_ci
+      DB_PASSWORD: ci_only
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/ai-business-assistant/pom.xml
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: frontend/app/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            frontend/app/package-lock.json
+            tests/browser/package-lock.json
+      - name: Verify backend against fresh PostgreSQL and pgvector
+        working-directory: backend/ai-business-assistant
+        run: ./mvnw --batch-mode clean verify
+      - name: Build frontend for real browser integration
+        working-directory: frontend/app
+        run: |
+          npm ci
+          npm run build
+      - name: Install browser test dependencies
+        working-directory: tests/browser
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Verify connection, backend failure, and recovery
+        working-directory: tests/browser
+        run: npm test
+      - name: Retain browser evidence and backend reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: api-status-verification
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            tests/browser/test-results/
+            backend/ai-business-assistant/target/surefire-reports/
+            backend/ai-business-assistant/target/failsafe-reports/

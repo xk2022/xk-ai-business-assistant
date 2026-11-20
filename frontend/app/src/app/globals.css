@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #101828;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+
+body {
+  margin: 0;
+  color: var(--foreground);
+  font-family: Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

@@ -1,0 +1,16 @@
+# Secrets and machine-local settings
+.env
+.env.*
+!.env.example
+*.log
+# Java
+**/target/
+# Node / Next.js
+**/node_modules/
+**/.next/
+**/out/
+**/*.tsbuildinfo
+# Browser test output (selected evidence lives in docs/verification)
+**/test-results/
+**/playwright-report/
+.DS_Store
