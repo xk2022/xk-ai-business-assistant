@@ -13,8 +13,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Keep both jobs on the Ubuntu version supported by pinned Playwright 1.58.2.
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
       run:
@@ -36,7 +37,7 @@ jobs:
       - run: npm run build
 
   backend-and-browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     # Service storage is new for each job; local development volumes are never used.
     services:
