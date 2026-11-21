@@ -18,10 +18,10 @@
 
 ## 從全新 clone 啟動
 
-初始化 `main` 只保留 README；本次實作在功能分支：
+從預設分支取得產品程式：
 
 ```bash
-git clone --branch feat/week03-api-status https://github.com/xk2022/xk-ai-business-assistant.git
+git clone https://github.com/xk2022/xk-ai-business-assistant.git
 cd xk-ai-business-assistant
 cp .env.example .env
 ```
@@ -116,4 +116,4 @@ npm run build
 docker compose down
 ```
 
-`down` 會停止並移除容器與專案網路，保留資料 volume。不要使用 `down -v` 或 `docker volume prune`，以免刪除資料。本次只在功能分支開發；不部署、不開 PR，也不變更公司文件庫或官網。
+`down` 會停止並移除容器與專案網路，保留資料 volume。不要使用 `down -v` 或 `docker volume prune`，以免刪除資料。開發時先建立功能分支，檢查通過後再依授權合併。此專案的 CI 不包含部署。

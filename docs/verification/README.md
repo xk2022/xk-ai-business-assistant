@@ -49,4 +49,4 @@ Java 21.0.13.1 JDK、Maven 3.9.11、Node.js 24.22.1、npm 11.9.0、Next.js 16.4.
 
 完整腳本的環境專用覆寫為 `JAVA_HOME`、`MAVEN_USER_HOME`、`MAVEN_OPTS`、`MAVEN_ARGS`、`npm_config_cache`、`PLAYWRIGHT_BROWSERS_PATH`，並設定 `TEST_POSTGRES_PORT=55433`、`EVIDENCE_DIR` 指向本目錄。這些環境專用路徑不影響一般本機啟動。
 
-本機驗收已完成；GitHub Actions 尚未在遠端執行。workflow 只執行檢查與保存驗收結果，不包含部署。
+本紀錄保存本機驗收結果；後續遠端執行結果可在 [Product CI](https://github.com/xk2022/xk-ai-business-assistant/actions/workflows/ci.yml) 查看。workflow 只執行檢查與保存驗收結果，不包含部署。
